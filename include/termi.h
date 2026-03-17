@@ -1,3 +1,6 @@
+#pragma once
+
+#include "widgets/widget.h"
 #include <stdint.h>
 #include <termios.h>
 
@@ -14,9 +17,12 @@ typedef struct {
     int height;
 
     termi_cell *buffer;
+
+    termi_widget **widgets;
+    int widget_count;
 } termi_screen;
 
-typedef struct {
+typedef struct termi_state {
   struct termios original_termios;
 
   termi_screen *screen;
@@ -39,3 +45,5 @@ void ti_nset_cellrc(termi_state *termi, int row, int col, char ch, uint8_t fg, u
 void ti_nprint(termi_state *termi, int row, int col, char *message, uint8_t fg, uint8_t bg);
 
 void ti_render(termi_state *termi);
+
+void ti_add_widget(termi_state *termi, termi_widget *widget);

@@ -1,6 +1,5 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
 #include <unistd.h>
 #include <sys/ioctl.h>
 
@@ -95,6 +94,14 @@ void ti_nset_cellrc(termi_state *termi, int row, int col, char ch, uint8_t fg, u
   ti_nset_celli(termi, row * termi->screen->width + col, ch, fg, bg);
 }
 
+void ti_render_widgets(termi_state *termi) {
+  termi_widget **widgets = termi->screen->widgets;
+
+  for (int i = 0; i < termi->screen->widget_count; i++) {
+    ti_render_widget(termi, widgets[i]);
+  }
+}
+
 void ti_render(termi_state *termi) {
   int width = termi->screen->width;
   int height = termi->screen->height;
@@ -103,6 +110,8 @@ void ti_render(termi_state *termi) {
   int capacity = width * height * 32;
   char *out = malloc(capacity);
   int pos = 0;
+
+  ti_render_widgets(termi);
 
   for (int i = 0; i < width * height; i++) {
     if (!buffer[i].dirty) continue;
@@ -137,4 +146,11 @@ void ti_set_cursor(int state) {
     write(STDOUT_FILENO, "\x1b[?25h", 6);
   else // hide                    *
     write(STDOUT_FILENO, "\x1b[?25l", 6);
+}
+
+void ti_add_widget(termi_state *termi, termi_widget *widget) {
+  termi->screen->widget_count++;
+  termi->screen->widgets = (termi_widget **)realloc(termi->screen->widgets, termi->screen->widget_count * sizeof(termi_widget *));
+
+  termi->screen->widgets[termi->screen->widget_count - 1] = widget;
 }
