@@ -11,10 +11,10 @@ int main(void) {
 
   ti_set_cursor(0);
 
-  termi_panelw panelw = ti_create_panelw(0, 0, 70, 8);
+  termi_panelw panelw = ti_create_panelw(0, 0, 70, 10);
   panelw.padding = 1;
   panelw.draw_box = 1;
-  panelw.title = "I'm a happily married panel with two children";
+  panelw.title = "I'm a happily married panel with four children";
   panelw.draw_title = 1;
 
   termi_textw textw = ti_create_textw(0, 0, "This is rendered using a widget! :0");
@@ -25,6 +25,9 @@ int main(void) {
 
   termi_textw counter = ti_create_textw(4, 0, "I can also count (press n): ");
   ti_set_parent((termi_widget *)&panelw, (termi_widget *)&counter);
+
+  termi_textw rainbow = ti_create_textw(6, 0, "Ever seen a #{196-r}#{208-a}#{226-i}#{46-n}#{39-b}#{51-o}#{93-w}?");
+  ti_set_parent((termi_widget *)&panelw, (termi_widget *)&rainbow);
 
   ti_add_widget(&termi, (termi_widget *)&panelw);
 

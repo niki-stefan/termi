@@ -8,8 +8,34 @@
 
 void ti_render_textw(termi_state *termi, termi_widget *widget) {
   termi_textw *textw = (termi_textw *)widget;
+  char *input = textw->text;
 
-  ti_nprint(termi, widget->abs_row, widget->abs_col, textw->text, 255, 0);
+  int output_len = 0;
+
+  for (int i = 0; input[i] != '\0'; i++) {
+    if (input[i] == '#') {
+      i += 2; // skip # and {
+
+      int color = 0;
+
+      while (input[i] && input[i] != '-' && input[i] >= '0' && input[i] <= '9') {
+        color = color * 10 + (input[i++] - '0');
+      }
+
+      i++; // skip -
+
+      while (input[i] != '\0' && input[i] != '}') {
+        ti_nset_cellrc(termi, widget->abs_row, widget->abs_col + output_len, input[i], color, 0);
+        
+        output_len++;
+        i++;
+      }
+    } else {
+      ti_nset_cellrc(termi, widget->abs_row, widget->abs_col + output_len, input[i], 255, 0);
+
+      output_len++;
+    }
+  }
 }
 
 void ti_destroy_textw(termi_widget *widget) {
@@ -60,6 +86,8 @@ void ti_nupdate_textw(termi_state *termi, termi_textw *textw, char *text, ...) {
   va_end(args);
 
   char *str = strdup(buffer);
+
+  if (textw->text) free(textw->text);
 
   textw->text = str;
   textw->widget.width = strlen(str);
