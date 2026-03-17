@@ -10,6 +10,7 @@ typedef struct {
 
 struct termi_widget {
     int row, col;
+    int abs_row, abs_col;
     int width, height;
 
     termi_widget *parent;

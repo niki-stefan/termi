@@ -154,3 +154,12 @@ void ti_add_widget(termi_state *termi, termi_widget *widget) {
 
   termi->screen->widgets[termi->screen->widget_count - 1] = widget;
 }
+
+void ti_set_parent(termi_widget *parent, termi_widget *child) {
+  parent->children_count++;
+  parent->children = (termi_widget **)realloc(parent->children, parent->children_count * sizeof(termi_widget *));
+
+  parent->children[parent->children_count - 1] = child;
+
+  child->parent = parent;
+}

@@ -47,3 +47,4 @@ void ti_nprint(termi_state *termi, int row, int col, char *message, uint8_t fg, 
 void ti_render(termi_state *termi);
 
 void ti_add_widget(termi_state *termi, termi_widget *widget);
+void ti_set_parent(termi_widget *parent, termi_widget *child);

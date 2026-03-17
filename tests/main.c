@@ -3,6 +3,7 @@
 #include "termi.h"
 #include "input/input.h"
 #include "widgets/text.h"
+#include "widgets/panel.h"
 
 int main(void) {
   termi_state termi = {};
@@ -10,11 +11,19 @@ int main(void) {
 
   ti_set_cursor(0);
 
+  termi_panelw panelw = ti_create_panelw(0, 0, 50, 6);
+  panelw.padding = 1;
+  panelw.draw_box = 1;
+  panelw.title = "I'm a happily married panel with two children";
+  panelw.draw_title = 1;
+
   termi_textw textw = ti_create_textw("This is rendered using a widget! :0", 0, 0);
-  ti_add_widget(&termi, (termi_widget *)&textw);
+  ti_set_parent((termi_widget *)&panelw, (termi_widget *)&textw);
 
   termi_textw face = ti_create_textw("Press t to make this face happy :(", 2, 0);
-  ti_add_widget(&termi, (termi_widget *)&face);
+  ti_set_parent((termi_widget *)&panelw, (termi_widget *)&face);
+
+  ti_add_widget(&termi, (termi_widget *)&panelw);
 
   int is_sad = 1;
 
