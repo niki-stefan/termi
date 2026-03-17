@@ -1,4 +1,6 @@
+#include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <unistd.h>
 #include <sys/ioctl.h>
 
@@ -72,8 +74,40 @@ void ti_clean_buffer(termi_state *termi) {
   for (int i = 0; i < width * height; i++) {
     buffer[i] = (termi_cell){
       .ch = ' ',
-      .fg = 0,
+      .fg = 255,
       .bg = 0
     };
+  }
+}
+
+void ti_nset_celli(termi_state *termi, int i, char ch, uint8_t fg, uint8_t bg) {
+  termi_cell *cell = &termi->screen->buffer[i];
+
+  cell->ch = ch;
+  cell->fg = fg;
+  cell->bg = bg;
+}
+
+void ti_nset_cellrc(termi_state *termi, int row, int col, char ch, uint8_t fg, uint8_t bg) {
+  termi_cell *cell = &termi->screen->buffer[row * termi->screen->width + col];
+
+  cell->ch = ch;
+  cell->fg = fg;
+  cell->bg = bg;
+}
+
+void ti_render(termi_state *termi) {
+  int width = termi->screen->width,
+      height = termi->screen->height;
+
+  termi_cell *buffer = termi->screen->buffer;
+
+  for (int i = 0; i < width * height; i++) {
+    char *output = (char *)malloc(100);
+
+    // [TODO] implement a method for displaying default colors
+    sprintf(output, "\x1b[38;5;%d;48;5;%dm%c\x1b[0m", buffer[i].fg, buffer[i].bg, buffer[i].ch);
+
+    write(STDOUT_FILENO, output, strlen(output));
   }
 }

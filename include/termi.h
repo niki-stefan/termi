@@ -29,3 +29,7 @@ void ti_leave_alternate_screen(termi_state *termi);
 void ti_get_screen_size(termi_state *termi);
 
 void ti_clean_buffer(termi_state *termi);
+void ti_nset_celli(termi_state *termi, int i, char ch, uint8_t fg, uint8_t bg);
+void ti_nset_cellrc(termi_state *termi, int row, int col, char ch, uint8_t fg, uint8_t bg);
+
+void ti_render(termi_state *termi);
