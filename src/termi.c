@@ -1,3 +1,4 @@
+#include <stdlib.h>
 #include <unistd.h>
 #include <sys/ioctl.h>
 
@@ -33,7 +34,46 @@ void ti_get_screen_size(termi_state *termi) {
   if (ioctl(STDOUT_FILENO, TIOCGWINSZ, &ws) == -1 || ws.ws_col == 0) {
     // [TODO] Handle error
   } else {
-    termi->width = ws.ws_col;
-    termi->height = ws.ws_row;
+    termi->screen->width = ws.ws_col;
+    termi->screen->height = ws.ws_row;
+  }
+}
+
+void ti_init(termi_state *termi, int alternate_screen) {
+  termi->screen = (termi_screen *)malloc(sizeof(termi_screen));
+
+  ti_get_screen_size(termi);
+  ti_clean_buffer(termi);
+
+  if (alternate_screen) {
+    ti_enter_alternate_screen(termi);
+  }
+}
+
+void ti_goodbye(termi_state *termi, int alternate_screen) {
+  free(termi->screen->buffer);
+  free(termi->screen);
+
+  if (alternate_screen) {
+    ti_leave_alternate_screen(termi);
+  }
+}
+
+void ti_clean_buffer(termi_state *termi) {
+  int width = termi->screen->width,
+      height = termi->screen->height;
+
+  // Allocate width * height cells
+  termi_cell *buffer =
+      (termi_cell *)malloc(width * height * sizeof(termi_cell));
+
+  termi->screen->buffer = buffer;
+
+  for (int i = 0; i < width * height; i++) {
+    buffer[i] = (termi_cell){
+      .ch = ' ',
+      .fg = 0,
+      .bg = 0
+    };
   }
 }

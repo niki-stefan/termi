@@ -4,9 +4,7 @@
 
 int main(void) {
   termi_state termi = {};
-
-  ti_enter_alternate_screen(&termi);
-  ti_get_screen_size(&termi);
+  ti_init(&termi, 1);
 
   while (1) {
     char c = '\0';
@@ -15,7 +13,7 @@ int main(void) {
     if (c == 'q') break;
   }
 
-  ti_leave_alternate_screen(&termi);
+  ti_goodbye(&termi, 1);
 
   return 0;
 }
