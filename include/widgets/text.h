@@ -1,8 +1,14 @@
+#pragma once
+
 #include "widgets/widget.h"
 
-typedef struct {
+typedef struct termi_textw {
   termi_widget widget;
+
   char *text;
+
+  int fg;
+  int bg;
 } termi_textw;
 
 void ti_render_textw(termi_state *termi, termi_widget *widget);

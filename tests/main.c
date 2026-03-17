@@ -14,7 +14,10 @@ int main(void) {
   termi_panelw panelw = ti_create_panelw(0, 0, 70, 10);
   panelw.padding = 1;
   panelw.draw_box = 1;
-  panelw.title = "I'm a happily married panel with four children";
+
+  termi_textw panelw_title = ti_create_textw(0, 0, "I'm a happily married panel with four children #{93;0-<3} #{33;0-<3}");
+
+  panelw.title = &panelw_title;
   panelw.draw_title = 1;
 
   termi_textw textw = ti_create_textw(0, 0, "This is rendered using a widget! :0");

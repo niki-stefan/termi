@@ -6,8 +6,8 @@
 
 typedef struct {
     char ch;
-    uint8_t fg; // use uint8_t (it has 1 byte, int has 4) to make the buffer smaller
-    uint8_t bg;
+    int fg; 
+    int bg;
 
     int dirty;
 } termi_cell;
@@ -39,10 +39,10 @@ void ti_leave_alternate_screen(termi_state *termi);
 void ti_get_screen_size(termi_state *termi);
 
 void ti_clean_buffer(termi_state *termi);
-void ti_nset_celli(termi_state *termi, int i, char ch, uint8_t fg, uint8_t bg);
-void ti_nset_cellrc(termi_state *termi, int row, int col, char ch, uint8_t fg, uint8_t bg);
+void ti_nset_celli(termi_state *termi, int i, char ch, int fg, int bg);
+void ti_nset_cellrc(termi_state *termi, int row, int col, char ch, int fg, int bg);
 
-void ti_nprint(termi_state *termi, int row, int col, char *message, uint8_t fg, uint8_t bg);
+void ti_nprint(termi_state *termi, int row, int col, char *message, int fg, int bg);
 
 void ti_render(termi_state *termi);
 

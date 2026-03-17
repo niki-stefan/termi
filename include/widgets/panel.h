@@ -1,4 +1,8 @@
+#pragma once
+
 #include "widgets/widget.h"
+
+typedef struct termi_textw termi_textw;
 
 typedef struct {
   termi_widget widget;
@@ -7,7 +11,7 @@ typedef struct {
 
   int draw_box;
 
-  char *title;
+  termi_textw *title;
   int draw_title;
 } termi_panelw;
 

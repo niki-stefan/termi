@@ -81,7 +81,7 @@ void ti_clean_buffer(termi_state *termi) {
   }
 }
 
-void ti_nset_celli(termi_state *termi, int i, char ch, uint8_t fg, uint8_t bg) {
+void ti_nset_celli(termi_state *termi, int i, char ch, int fg, int bg) {
   termi_cell *cell = &termi->screen->buffer[i];
 
   cell->ch = ch;
@@ -90,7 +90,7 @@ void ti_nset_celli(termi_state *termi, int i, char ch, uint8_t fg, uint8_t bg) {
   cell->dirty = 1;
 }
 
-void ti_nset_cellrc(termi_state *termi, int row, int col, char ch, uint8_t fg, uint8_t bg) {
+void ti_nset_cellrc(termi_state *termi, int row, int col, char ch, int fg, int bg) {
   ti_nset_celli(termi, row * termi->screen->width + col, ch, fg, bg);
 }
 
@@ -116,18 +116,29 @@ void ti_render(termi_state *termi) {
   for (int i = 0; i < width * height; i++) {
     if (!buffer[i].dirty) continue;
 
-    int written = snprintf(
-      out + pos,
-      capacity - pos,
-      "\x1b[%d;%dH\x1b[38;5;%d;48;5;%dm%c\x1b[0m",
-      i / width + 1,
-      i % width + 1,
-      buffer[i].fg,
-      buffer[i].bg,
-      buffer[i].ch
-    );
+    int row = i / width + 1;
+    int col = i % width + 1;
 
-    pos += written;
+    if (buffer[i].fg == -1 && buffer[i].bg == -1) {
+      pos += snprintf(out + pos, capacity - pos,
+        "\x1b[%d;%dH\x1b[39;49m%c",
+        row, col, buffer[i].ch);
+    }
+    else if (buffer[i].fg == -1) {
+      pos += snprintf(out + pos, capacity - pos,
+        "\x1b[%d;%dH\x1b[39;48;5;%dm%c",
+        row, col, buffer[i].bg, buffer[i].ch);
+    }
+    else if (buffer[i].bg == -1) {
+      pos += snprintf(out + pos, capacity - pos,
+        "\x1b[%d;%dH\x1b[38;5;%d;49m%c",
+        row, col, buffer[i].fg, buffer[i].ch);
+    }
+    else {
+      pos += snprintf(out + pos, capacity - pos,
+        "\x1b[%d;%dH\x1b[38;5;%d;48;5;%dm%c",
+        row, col, buffer[i].fg, buffer[i].bg, buffer[i].ch);
+    }
   }
 
   write(STDOUT_FILENO, out, pos);
@@ -135,7 +146,7 @@ void ti_render(termi_state *termi) {
   free(out);
 }
 
-void ti_nprint(termi_state *termi, int row, int col, char *message, uint8_t fg, uint8_t bg) {
+void ti_nprint(termi_state *termi, int row, int col, char *message, int fg, int bg) {
   for (int i = 0; message[i] != '\0'; i++) {
     ti_nset_cellrc(termi, row, col + i, message[i], fg, bg);
   }
