@@ -1,3 +1,5 @@
+#include <stdarg.h>
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -21,7 +23,16 @@ termi_widget_vtable textw_vtable = (termi_widget_vtable){
   .destroy = ti_destroy_textw
 };
 
-termi_textw ti_create_textw(char *text, int row, int col) {
+termi_textw ti_create_textw(int row, int col, char *text, ...) {
+  char buffer[256];
+
+  va_list args;
+  va_start(args, text);
+  vsnprintf(buffer, sizeof(buffer), text, args);
+  va_end(args);
+
+  char *str = strdup(buffer);
+
   return (termi_textw){
     .widget = {
       .dirty = 1,
@@ -34,15 +45,24 @@ termi_textw ti_create_textw(char *text, int row, int col) {
       .children = NULL,
       .children_count = 0
     },
-    .text = text
+    .text = str
   };
 }
 
-void ti_nupdate_textw(termi_state *termi, termi_textw *textw, char *text) {
+void ti_nupdate_textw(termi_state *termi, termi_textw *textw, char *text, ...) {
   int old_len = strlen(textw->text);
 
-  textw->text = text;
-  textw->widget.width = strlen(text);
+  char buffer[256];
+
+  va_list args;
+  va_start(args, text);
+  vsnprintf(buffer, sizeof(buffer), text, args);
+  va_end(args);
+
+  char *str = strdup(buffer);
+
+  textw->text = str;
+  textw->widget.width = strlen(str);
   textw->widget.dirty = 1;
 
   if (old_len > textw->widget.width) {

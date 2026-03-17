@@ -11,21 +11,25 @@ int main(void) {
 
   ti_set_cursor(0);
 
-  termi_panelw panelw = ti_create_panelw(0, 0, 50, 6);
+  termi_panelw panelw = ti_create_panelw(0, 0, 70, 8);
   panelw.padding = 1;
   panelw.draw_box = 1;
   panelw.title = "I'm a happily married panel with two children";
   panelw.draw_title = 1;
 
-  termi_textw textw = ti_create_textw("This is rendered using a widget! :0", 0, 0);
+  termi_textw textw = ti_create_textw(0, 0, "This is rendered using a widget! :0");
   ti_set_parent((termi_widget *)&panelw, (termi_widget *)&textw);
 
-  termi_textw face = ti_create_textw("Press t to make this face happy :(", 2, 0);
+  termi_textw face = ti_create_textw(2, 0, "Press t to make this face happy :(");
   ti_set_parent((termi_widget *)&panelw, (termi_widget *)&face);
+
+  termi_textw counter = ti_create_textw(4, 0, "I can also count (press n): ");
+  ti_set_parent((termi_widget *)&panelw, (termi_widget *)&counter);
 
   ti_add_widget(&termi, (termi_widget *)&panelw);
 
-  int is_sad = 1;
+  int is_sad = 1,
+      count = 1;
 
   ti_render(&termi);
 
@@ -43,6 +47,23 @@ int main(void) {
         }
 
         ti_render(&termi);
+      } else if (event.data[0] == 'n') {
+        if (count > 5) {
+          continue;
+        } else if (count == 2) {
+          count++;
+        } else if (count == 5) {
+          ti_nupdate_textw(&termi, &counter, "%s 5 (idk past that)", counter.text);
+          ti_render(&termi);
+
+          count++;
+          continue;
+        }
+
+        ti_nupdate_textw(&termi, &counter, "%s %d", counter.text, count);
+        ti_render(&termi);
+
+        count++;
       }
     }
   }
