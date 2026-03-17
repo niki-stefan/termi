@@ -56,6 +56,8 @@ void ti_goodbye(termi_state *termi, int alternate_screen) {
   free(termi->screen->buffer);
   free(termi->screen);
 
+  ti_set_cursor(1);
+
   if (alternate_screen) {
     ti_leave_alternate_screen(termi);
   }
@@ -86,28 +88,53 @@ void ti_nset_celli(termi_state *termi, int i, char ch, uint8_t fg, uint8_t bg) {
   cell->ch = ch;
   cell->fg = fg;
   cell->bg = bg;
+  cell->dirty = 1;
 }
 
 void ti_nset_cellrc(termi_state *termi, int row, int col, char ch, uint8_t fg, uint8_t bg) {
-  termi_cell *cell = &termi->screen->buffer[row * termi->screen->width + col];
-
-  cell->ch = ch;
-  cell->fg = fg;
-  cell->bg = bg;
+  ti_nset_celli(termi, row * termi->screen->width + col, ch, fg, bg);
 }
 
 void ti_render(termi_state *termi) {
-  int width = termi->screen->width,
-      height = termi->screen->height;
-
+  int width = termi->screen->width;
+  int height = termi->screen->height;
   termi_cell *buffer = termi->screen->buffer;
 
+  int capacity = width * height * 32;
+  char *out = malloc(capacity);
+  int pos = 0;
+
   for (int i = 0; i < width * height; i++) {
-    char *output = (char *)malloc(100);
+    if (!buffer[i].dirty) continue;
 
-    // [TODO] implement a method for displaying default colors
-    sprintf(output, "\x1b[38;5;%d;48;5;%dm%c\x1b[0m", buffer[i].fg, buffer[i].bg, buffer[i].ch);
+    int written = snprintf(
+      out + pos,
+      capacity - pos,
+      "\x1b[%d;%dH\x1b[38;5;%d;48;5;%dm%c\x1b[0m",
+      i / width + 1,
+      i % width + 1,
+      buffer[i].fg,
+      buffer[i].bg,
+      buffer[i].ch
+    );
 
-    write(STDOUT_FILENO, output, strlen(output));
+    pos += written;
   }
+
+  write(STDOUT_FILENO, out, pos);
+
+  free(out);
+}
+
+void ti_nprint(termi_state *termi, int row, int col, char *message, uint8_t fg, uint8_t bg) {
+  for (int i = 0; message[i] != '\0'; i++) {
+    ti_nset_cellrc(termi, row, col + i, message[i], fg, bg);
+  }
+}
+
+void ti_set_cursor(int state) {
+  if (state == 1) // show
+    write(STDOUT_FILENO, "\x1b[?25h", 6);
+  else // hide                    *
+    write(STDOUT_FILENO, "\x1b[?25l", 6);
 }
